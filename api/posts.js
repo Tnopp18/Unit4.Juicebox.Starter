@@ -38,7 +38,7 @@ postsRouter.get('/', async (req, res, next) => {
 });
 
 postsRouter.post('/', requireUser, async (req, res, next) => {
-  const { title, content = "" } = req.body;
+  const { title, content = "", tags = [] } = req.body;
 
   const postData = {};
 
@@ -46,6 +46,7 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
     postData.authorId = req.user.id;
     postData.title = title;
     postData.content = content;
+    postData.tags = tags;
 
     const post = await createPost(postData);
 
@@ -98,7 +99,22 @@ postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
 });
 
 postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
-  res.send({ message: 'under construction' });
+  const postId = req.params.postId;
+
+  try {
+    const deletedPost = await updatePost(postId, { isDeleted : true});
+
+    if (deletedPost) {
+      res.send({ message: 'Post deleted' });
+    }else {
+      next({
+        name: 'PostDeleteError',
+        message: 'Unable to delete post.'
+      });
+    }
+  }catch(err) {
+    next(err);
+  }
 });
 
 module.exports = postsRouter;

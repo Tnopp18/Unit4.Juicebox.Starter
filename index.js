@@ -18,6 +18,10 @@ server.use((req, res, next) => {
   next();
 });
 
+server.get('/', (req,res,next) => {
+  res.sendFile(`${__dirname}/public/index.html`);
+});
+
 const apiRouter = require('./api');
 server.use('/api', apiRouter);
 
